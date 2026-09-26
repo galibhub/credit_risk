@@ -9,6 +9,7 @@ from database.mongodb import (
 )
 
 from routes.auth import router as auth_router
+from routes.assessment import router as assessment_router
 
 
 @asynccontextmanager
@@ -50,6 +51,14 @@ app.include_router(
     auth_router,
     prefix="/api/v1/auth",
     tags=["Authentication"],
+)
+
+
+# Assessment routes
+app.include_router(
+    assessment_router,
+    prefix="/api/v1/assessment",
+    tags=["Assessment"],
 )
 
 
