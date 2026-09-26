@@ -24,3 +24,26 @@ class PredictionResponse(BaseModel):
     prediction: int
     risk: str
     shap: list[dict]
+
+
+class AssessmentHistoryItem(BaseModel):
+    id: str
+    created_at: str
+    probability: float
+    threshold: float
+    prediction: int
+    risk: str
+
+
+class AssessmentHistoryResponse(BaseModel):
+    assessments: list[AssessmentHistoryItem]
+    total: int
+
+
+class AssessmentDetailResponse(BaseModel):
+    id: str
+    user_id: str
+    created_at: str
+    input: dict
+    prediction: dict
+    shap: list[dict]
