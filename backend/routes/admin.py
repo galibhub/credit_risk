@@ -4,7 +4,6 @@ from database.mongodb import (
     users_collection,
     assessments_collection,
 )
-
 from dependencies.auth import require_admin
 
 from schemas.admin import (
@@ -24,7 +23,7 @@ router = APIRouter()
     response_model=AdminUsersResponse,
 )
 def get_all_users(
-    current_user: dict = Depends(require_admin),
+    admin: dict = Depends(require_admin),
     limit: int = Query(default=20, ge=1, le=100),
     skip: int = Query(default=0, ge=0),
 ):
@@ -70,7 +69,7 @@ def get_all_users(
     response_model=AdminAssessmentsResponse,
 )
 def get_all_assessments(
-    current_user: dict = Depends(require_admin),
+    admin: dict = Depends(require_admin),
     limit: int = Query(default=20, ge=1, le=100),
     skip: int = Query(default=0, ge=0),
 ):
@@ -127,22 +126,18 @@ def get_all_assessments(
     response_model=AdminStatsResponse,
 )
 def get_admin_stats(
-    current_user: dict = Depends(require_admin),
+    admin: dict = Depends(require_admin),
 ):
     total_users = users_collection.count_documents({})
 
     total_assessments = assessments_collection.count_documents({})
 
     high_risk = assessments_collection.count_documents(
-        {
-            "prediction.prediction": 1,
-        }
+        {"prediction.prediction": 1}
     )
 
     low_risk = assessments_collection.count_documents(
-        {
-            "prediction.prediction": 0,
-        }
+        {"prediction.prediction": 0}
     )
 
     return {

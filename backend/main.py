@@ -11,16 +11,13 @@ from database.mongodb import (
 from routes.auth import router as auth_router
 from routes.assessment import router as assessment_router
 from routes.dashboard import router as dashboard_router
+from routes.admin import router as admin_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Application startup
     connect_to_mongodb()
-
     yield
-
-    # Application shutdown
     close_mongodb_connection()
 
 
@@ -35,39 +32,37 @@ app = FastAPI(
 )
 
 
-# React frontend communication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173"
-    ],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Authentication routes
 app.include_router(
     auth_router,
     prefix="/api/v1/auth",
     tags=["Authentication"],
 )
 
-
-# Assessment routes
 app.include_router(
     assessment_router,
     prefix="/api/v1/assessment",
     tags=["Assessment"],
 )
 
-
-# Dashboard routes
 app.include_router(
     dashboard_router,
     prefix="/api/v1/dashboard",
     tags=["Dashboard"],
+)
+
+app.include_router(
+    admin_router,
+    prefix="/api/v1/admin",
+    tags=["Admin"],
 )
 
 

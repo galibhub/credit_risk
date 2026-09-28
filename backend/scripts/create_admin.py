@@ -6,27 +6,40 @@ from services.auth_service import hash_password
 
 
 def main():
-    name = input("Admin name: ").strip()
     email = input("Admin email: ").strip().lower()
-    password = getpass("Admin password: ")
 
-    existing_user = users_collection.find_one(
+    existing = users_collection.find_one(
         {"email": email}
     )
 
-    if existing_user:
-        users_collection.update_one(
-            {"_id": existing_user["_id"]},
-            {
-                "$set": {
-                    "name": name,
-                    "password_hash": hash_password(password),
-                    "role": "admin",
-                }
-            },
+    if existing:
+        if existing.get("role") == "admin":
+            print("This account is already an admin.")
+            return
+
+        confirmation = input(
+            "Existing account found. "
+            "Type PROMOTE to make it admin: "
         )
 
-        print("Existing user promoted to admin.")
+        if confirmation != "PROMOTE":
+            print("Cancelled.")
+            return
+
+        users_collection.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {"role": "admin"}},
+        )
+
+        print("Existing account promoted to admin.")
+        print("Login again to get an admin token.")
+        return
+
+    name = input("Admin name: ").strip()
+    password = getpass("Admin password: ")
+
+    if not name or not email or len(password) < 8:
+        print("Name and email are required; password must be at least 8 characters.")
         return
 
     user = {
@@ -39,7 +52,7 @@ def main():
 
     users_collection.insert_one(user)
 
-    print("Admin user created successfully.")
+    print("Admin account created successfully.")
 
 
 if __name__ == "__main__":
