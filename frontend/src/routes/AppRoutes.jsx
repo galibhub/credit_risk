@@ -1,72 +1,83 @@
-import {
-  Link,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from 'react-router-dom';
+
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import PublicLayout from '../components/layout/PublicLayout';
+import DashboardLayout from '../components/layout/DashboardLayout';
+
 import HomePage from '../pages/public/HomePage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+
+import DashboardPage from '../pages/user/DashboardPage';
+import NewAssessmentPage from '../pages/user/NewAssessmentPage';
+import AssessmentHistoryPage from '../pages/user/AssessmentHistoryPage';
+import AssessmentDetailsPage from '../pages/user/AssessmentDetailsPage';
+import ModelInsightsPage from '../pages/user/ModelInsightsPage';
+
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+
 import ProtectedRoute from './ProtectedRoute';
-import { useAuth } from '../context/AuthContext';
-
-function WorkspaceWelcome() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  return (
-    <main className="workspace-placeholder">
-      <div className="workspace-box">
-        <span className="auth-promo-footer">
-          CREDLENS WORKSPACE
-        </span>
-        <h1>Welcome, {user?.name}</h1>
-        <p>
-          You are signed in as {user?.role}. Your dashboard
-          is being built in the next step.
-        </p>
-
-        <div className="workspace-actions">
-          <Link className="btn btn-outline" to="/">
-            Homepage
-          </Link>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              logout();
-              navigate('/login', { replace: true });
-            }}
-          >
-            Sign out
-          </button>
-        </div>
-      </div>
-    </main>
-  );
-}
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
       </Route>
 
+      {/* Authentication */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* User workspace */}
       <Route element={<ProtectedRoute role="user" />}>
-        <Route path="/app/dashboard" element={<WorkspaceWelcome />} />
+        <Route path="/app" element={<DashboardLayout />}>
+          <Route
+            index
+            element={<Navigate to="dashboard" replace />}
+          />
+
+          <Route
+            path="dashboard"
+            element={<DashboardPage />}
+          />
+
+          <Route
+            path="new-assessment"
+            element={<NewAssessmentPage />}
+          />
+
+          <Route
+            path="history"
+            element={<AssessmentHistoryPage />}
+          />
+
+          <Route
+            path="assessments/:assessmentId"
+            element={<AssessmentDetailsPage />}
+          />
+
+          <Route
+            path="model-insights"
+            element={<ModelInsightsPage />}
+          />
+        </Route>
       </Route>
 
+      {/* Admin workspace */}
       <Route element={<ProtectedRoute role="admin" />}>
-        <Route path="/admin/dashboard" element={<WorkspaceWelcome />} />
+        <Route
+          path="/admin/dashboard"
+          element={<AdminDashboardPage />}
+        />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Fallback */}
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
     </Routes>
   );
 }
